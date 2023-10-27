@@ -131,7 +131,7 @@ ghost predicate alpha_height_balanced(t: Tree, alpha: real)
 {
   match t
   case Empty => true
-  case Node(_, l, r, _, _) => size(t) > 0 ==>
+  case Node(_, l, r, _, _) =>
     tree_height(t) as real <= h_alpha(size(t) as real, alpha)
   // && alpha_height_balanced(l,alpha)
   // && alpha_height_balanced(r,alpha)
@@ -145,7 +145,7 @@ ghost predicate loose_alpha_height_balanced(t: Tree, alpha: real)
 {
   match t
   case Empty => true
-  case Node(_, l, r, _, _) => size(t) > 0 ==>
+  case Node(_, l, r, _, _) =>
     tree_height(t) as real <= h_alpha(size(t) as real, alpha) + 1.0
   // && loose_alpha_height_balanced(l,alpha)
   // && loose_alpha_height_balanced(r,alpha)
