@@ -14,7 +14,7 @@
   In this version, we implement the delete operations using lazy deletion, so field
   `exist` is added here, to indicate if the key in this node really exists
 */
-datatype Tree = Empty | Node(key: int, left: Tree, right: Tree, max_size: nat, exist: bool)
+datatype Tree = Empty | Node(key: int, left: Tree, right: Tree, exist: bool)
 
 /**
   Initiate value of constant `α`, usually 0.7 used, you can also use any arbitary
@@ -51,7 +51,7 @@ function size(t: Tree): (s: nat)
 {
   match t
   case Empty => 0
-  case Node(_, l, r, _, _) => size(l) + size(r) + 1
+  case Node(_, l, r, _) => size(l) + size(r) + 1
 }
 
 /**
@@ -62,7 +62,7 @@ function real_size(t: Tree) : (s: nat)
 {
   match t
   case Empty => 0
-  case Node(_, l, r, _, e) =>
+  case Node(_, l, r, e) =>
     if e then real_size(l) + real_size(r) + 1
     else real_size(l) + real_size(r)
 }
@@ -117,10 +117,10 @@ predicate alpha_weight_balanced(t: Tree, alpha: real)
 {
   match t
   case Empty => true
-  case Node(_, l, r, _, _) => size(l) as real <= multiply(alpha, (size(t) as real))
-                              && size(r) as real <= multiply(alpha, (size(t) as real))
-                              && alpha_weight_balanced(l,alpha)
-                              && alpha_weight_balanced(r,alpha)
+  case Node(_, l, r, _) => size(l) as real <= multiply(alpha, (size(t) as real))
+                           && size(r) as real <= multiply(alpha, (size(t) as real))
+                           && alpha_weight_balanced(l,alpha)
+                           && alpha_weight_balanced(r,alpha)
 }
 
 /**
@@ -131,10 +131,10 @@ ghost predicate alpha_height_balanced(t: Tree, alpha: real)
 {
   match t
   case Empty => true
-  case Node(_, l, r, _, _) =>
+  case Node(_, l, r, _) =>
     tree_height(t) as real <= h_alpha(size(t) as real, alpha)
-  // && alpha_height_balanced(l,alpha)
-  // && alpha_height_balanced(r,alpha)
+    // && alpha_height_balanced(l,alpha)
+    // && alpha_height_balanced(r,alpha)
 }
 
 /**
@@ -145,10 +145,10 @@ ghost predicate loose_alpha_height_balanced(t: Tree, alpha: real)
 {
   match t
   case Empty => true
-  case Node(_, l, r, _, _) =>
+  case Node(_, l, r, _) =>
     tree_height(t) as real <= h_alpha(size(t) as real, alpha) + 1.0
-  // && loose_alpha_height_balanced(l,alpha)
-  // && loose_alpha_height_balanced(r,alpha)
+    // && loose_alpha_height_balanced(l,alpha)
+    // && loose_alpha_height_balanced(r,alpha)
 }
 
 /**
@@ -167,7 +167,7 @@ function tree_elements(t: Tree): (s: set<int>)
 {
   match t
   case Empty => {}
-  case Node(k, l, r, _, _) => tree_elements(l) + {k} + tree_elements(r)
+  case Node(k, l, r, _) => tree_elements(l) + {k} + tree_elements(r)
 }
 
 /**
@@ -187,7 +187,7 @@ function real_tree_elements(t: Tree): (s: set<int>)
 {
   match t
   case Empty => {}
-  case Node(k, l, r, _, e) =>
+  case Node(k, l, r, e) =>
     assert real_tree_elements(l) <= tree_elements(l);
     assert real_tree_elements(r) <= tree_elements(r);
     if e then real_tree_elements(l) + {k} + real_tree_elements(r)
@@ -203,7 +203,7 @@ function tree_nodes(t: Tree): (s: set<Tree>)
 {
   match t
   case Empty => {}
-  case Node(_, l, r, _, _) => tree_nodes(l) + {t} + tree_nodes(r)
+  case Node(_, l, r, _) => tree_nodes(l) + {t} + tree_nodes(r)
 }
 
 /**
@@ -214,7 +214,7 @@ function node_depth(t: Tree, n: Tree) : (d: nat)
   ensures d >= 0
 {
   match t
-  case Node(k, l, r, _, _) =>
+  case Node(k, l, r, _) =>
     if n == t then 0
     else if node_in_tree(l, n) then node_depth(l, n) + 1
     else
@@ -281,7 +281,7 @@ ghost function tree_height(t: Tree) : (h: nat)
 {
   match t
   case Empty => 0
-  case Node(_, _, _, _, _) =>
+  case Node(_, _, _, _) =>
     var deepest_node := max_depth_node(t);
     node_depth(t, deepest_node)
 }
@@ -293,9 +293,9 @@ predicate BST(t: Tree)
 {
   match t
   case Empty => true
-  case Node(k, l, r, _, _) => BST(l) && BST(r)
-                              && (forall e :: e in tree_elements(l) ==> e < k)
-                              && (forall e :: e in tree_elements(r) ==> e > k)
+  case Node(k, l, r, _) => BST(l) && BST(r)
+                           && (forall e :: e in tree_elements(l) ==> e < k)
+                           && (forall e :: e in tree_elements(r) ==> e > k)
 }
 
 /**
@@ -550,10 +550,10 @@ lemma node_properties(t: Tree, n: Tree)
   ensures
     match t
     case Empty => node_in_tree(t, n) == false
-    case Node(k, l, r, _, _) =>
+    case Node(k, l, r, _) =>
       match n
       case Empty => node_in_tree(t, n) == false
-      case Node(k', _, _, _, _) =>
+      case Node(k', _, _, _) =>
         if t == n then  node_in_tree(t, n) == true
                         && k' in tree_elements(t)
         else node_in_tree(t, n) == node_in_tree(l, n) || node_in_tree(r, n)
@@ -674,7 +674,7 @@ lemma{:vcs_split_on_every_assert} non_empty_BST_properties(t: Tree)
     case Empty =>
       assert tree_nodes(t.left) == {};
       assert {} * tree_nodes(t.right) == {};
-    case Node(_, _, _, _, _) =>
+    case Node(_, _, _, _) =>
       assert tree_nodes(t.left) != {};
       if tree_nodes(t.left) * tree_nodes(t.right) != {}
       {
@@ -725,7 +725,7 @@ predicate search(t: Tree, x: int)
 {
   match t
   case Empty => false
-  case Node(k, l, r, m, e) =>
+  case Node(k, l, r, e) =>
     if k == x then e
     else if x < k then search(l, x)
     else search(r, x)
@@ -734,7 +734,7 @@ predicate search(t: Tree, x: int)
 /**
   Insert a key into a tree recursively
  */
-ghost function{:vcs_split_on_every_assert} insert'(t: Tree, x: int) : (t': Tree)
+ghost function{:vcs_split_on_every_assert} insert_key(t: Tree, x: int) : (t': Tree)
   requires BST(t)
   ensures BST(t')
   ensures tree_elements(t') == tree_elements(t) + {x}
@@ -742,32 +742,32 @@ ghost function{:vcs_split_on_every_assert} insert'(t: Tree, x: int) : (t': Tree)
 {
   match t
   case Empty =>
-    assert BST(Node(x, Empty, Empty, 1, true));
+    assert BST(Node(x, Empty, Empty, true));
     assert tree_elements(t) == {};
-    assert tree_elements(Node(x, Empty, Empty, 1, true)) == tree_elements(t) + {x};
+    assert tree_elements(Node(x, Empty, Empty, true)) == tree_elements(t) + {x};
     assert real_tree_elements(t) == {};
-    assert real_tree_elements(Node(x, Empty, Empty, 1, true)) == real_tree_elements(t) + {x};
-    Node(x, Empty, Empty, 1, true)
-  case Node(k, l, r, old_max_size, e) =>
+    assert real_tree_elements(Node(x, Empty, Empty, true)) == real_tree_elements(t) + {x};
+    Node(x, Empty, Empty, true)
+  case Node(k, l, r, e) =>
     if x < k then
       assert BST(l);
-      assert BST(insert'(l, x));
-      assert BST(Node(k, insert'(l, x), r, max(old_max_size, size(t)) + 1, e));
-      Node(k, insert'(l, x), r, max(old_max_size, size(t)) + 1, e)
+      assert BST(insert_key(l, x));
+      assert BST(Node(k, insert_key(l, x), r, e));
+      Node(k, insert_key(l, x), r, e)
     else if x > k then
       assert BST(r);
-      assert BST(insert'(r, x));
-      assert BST(Node(k, l, insert'(r, x), max(old_max_size, size(t)) + 1, e));
-      Node(k, l, insert'(r, x), max(old_max_size, size(t)) + 1, e)
+      assert BST(insert_key(r, x));
+      assert BST(Node(k, l, insert_key(r, x), e));
+      Node(k, l, insert_key(r, x), e)
     else
       assert BST(t);
-      assert BST(Node(k, l, r, max(old_max_size, size(t)) + 1, true));
+      assert BST(Node(k, l, r, true));
       assert tree_elements(t) == tree_elements(t) + {x};
       assert e ==> real_tree_elements(t) == real_tree_elements(t) + {x};
-      assert !e ==> real_tree_elements(Node(k, l, r, max(old_max_size, size(t)) + 1, true)) == real_tree_elements(t) + {x};
+      assert !e ==> real_tree_elements(Node(k, l, r, true)) == real_tree_elements(t) + {x};
       if e then t
       else
-        Node(k, l, r, max(old_max_size, size(t)) + 1, true)
+        Node(k, l, r, true)
 }
 
 /**
@@ -788,15 +788,15 @@ ghost function{:vcs_split_on_every_assert} insert(t: Tree, x: int) : (t': Tree)
 {
   match t
   case Empty =>
-    assert BST(Node(x, Empty, Empty, 1, true));
+    assert BST(Node(x, Empty, Empty, true));
     assert tree_elements(t) == {};
-    assert tree_elements(Node(x, Empty, Empty, 1, true)) == tree_elements(t) + {x};
+    assert tree_elements(Node(x, Empty, Empty, true)) == tree_elements(t) + {x};
     assert real_tree_elements(t) == {};
-    assert real_tree_elements(Node(x, Empty, Empty, 1, true)) == real_tree_elements(t) + {x};
-    assert loose_alpha_height_balanced(Node(x, Empty, Empty, 1, true), ALPHA);
-    Node(x, Empty, Empty, 1, true)
-  case Node(k, l, r, old_max_size, e) =>
-    var t' := insert'(t, x);
+    assert real_tree_elements(Node(x, Empty, Empty, true)) == real_tree_elements(t) + {x};
+    assert loose_alpha_height_balanced(Node(x, Empty, Empty, true), ALPHA);
+    Node(x, Empty, Empty, true)
+  case Node(k, l, r, e) =>
+    var t' := insert_key(t, x);
     if loose_alpha_height_balanced(t', ALPHA) then t'
     else balance_tree(t')
 }
@@ -805,7 +805,7 @@ ghost function{:vcs_split_on_every_assert} insert(t: Tree, x: int) : (t': Tree)
   Lazy-deletion of key `x` in tree `t`
   This function does not guarantee the balance property. So this is a mid-operation.
  */
-function delete'(t: Tree, x: int) : (t': Tree)
+function delete_key(t: Tree, x: int) : (t': Tree)
   requires BST(t)
   ensures BST(t')
   ensures tree_elements(t) == tree_elements(t')
@@ -815,16 +815,16 @@ function delete'(t: Tree, x: int) : (t': Tree)
 {
   match t
   case Empty => Empty
-  case Node(k, l, r, old_max_size, e) =>
-    if k == x then Node(k, l, r, old_max_size, false)
-    else if x < k then Node(k, delete'(l, x), r, old_max_size, e)
-    else Node(k, l, delete'(r, x), old_max_size, e)
+  case Node(k, l, r, e) =>
+    if k == x then Node(k, l, r, false)
+    else if x < k then Node(k, delete_key(l, x), r, e)
+    else Node(k, l, delete_key(r, x), e)
 }
 
 /**
   Complete delete function implemention
   This function does (lazy-)deletion operation in two steps:
-    1: lazy delete the key from tree using `delete'`
+    1: lazy delete the key from tree using `delete_key`
     2: wholely rebuild the tree if too many nodes are lazy deleted(`real_size` 
       is too small with respect to ALPHA*`size`)
  */
@@ -839,8 +839,8 @@ ghost function delete(t: Tree, x: int) : (t': Tree)
 {
   match t
   case Empty => Empty
-  case Node(_, _, _, _, _) =>
-    var tmp := delete'(t, x);
+  case Node(_, _, _, _) =>
+    var tmp := delete_key(t, x);
     if real_size(tmp) as real < ALPHA*(size(tmp) as real) then whole_rebuild(tmp)
     else tmp
 }
@@ -967,9 +967,9 @@ ghost function{:vcs_split_on_every_assert} build_tree(s: seq<int>) : (t: Tree)
     assert tree_elements(l)!!{key};
     assert tree_elements(r)!!{key};
     assert multiset(s) == multiset(lseq) + multiset{key} + multiset(rseq);
-    assert  tree_elements(Node(key, l, r, size(l)+size(r)+1, true)) ==
+    assert  tree_elements(Node(key, l, r, true)) ==
             tree_elements(l) + tree_elements(r) + {key};
-    assert  multiset(tree_elements(Node(key, l, r, size(l)+size(r)+1, true))) ==
+    assert  multiset(tree_elements(Node(key, l, r, true))) ==
             multiset(tree_elements(l)) + multiset(tree_elements(r)) + multiset{key};
 
     assert forall k :: k in tree_elements(l) ==> k < key by {
@@ -988,7 +988,7 @@ ghost function{:vcs_split_on_every_assert} build_tree(s: seq<int>) : (t: Tree)
 
     assert BST(l);
     assert BST(r);
-    assert BST(Node(key, l, r, size(l)+size(r)+1, true)) by {
+    assert BST(Node(key, l, r, true)) by {
       assert forall k :: k in tree_elements(l) ==> k < key;
       assert forall k :: k in tree_elements(r) ==> k > key;
       assert BST(l);
@@ -997,7 +997,7 @@ ghost function{:vcs_split_on_every_assert} build_tree(s: seq<int>) : (t: Tree)
 
     assert alpha_weight_balanced(l, 0.5);
     assert alpha_weight_balanced(r, 0.5);
-    assert size(Node(key, l, r, size(l)+size(r)+1, true)) == size(l) + size(r) + 1;
+    assert size(Node(key, l, r, true)) == size(l) + size(r) + 1;
     assert |tree_elements(l)| == |tree_nodes(l)| by {
       BST_properties(l);
     }
@@ -1016,9 +1016,9 @@ ghost function{:vcs_split_on_every_assert} build_tree(s: seq<int>) : (t: Tree)
     }
     assert size(l) <= size(r) + 1;
     assert size(r) <= size(l) + 1;
-    assert alpha_weight_balanced(Node(key, l, r, size(l)+size(r)+1, true), 0.5);
+    assert alpha_weight_balanced(Node(key, l, r, true), 0.5);
 
-    Node(key, l, r, size(l)+size(r)+1, true)
+    Node(key, l, r, true)
 }
 
 /**
@@ -1214,7 +1214,7 @@ ghost function{:vcs_split_on_every_assert} whole_rebuild(t: Tree) : (t': Tree)
   Balance the tree to 0.5-alpha-weight(height)-balanced, and ensures the set of 
   real elements equals to `s`
  */
-ghost function{:vcs_split_on_every_assert} balance_tree'(t: Tree, s: set<int>) : (t': Tree)
+ghost function{:vcs_split_on_every_assert} correct_key(t: Tree, s: set<int>) : (t': Tree)
   requires BST(t)
   requires s <= tree_elements(t)
   requires alpha_weight_balanced(t, 0.5)
@@ -1227,15 +1227,15 @@ ghost function{:vcs_split_on_every_assert} balance_tree'(t: Tree, s: set<int>) :
 {
   match t
   case Empty => Empty
-  case Node(k, l, r, old_max_size, e) =>
+  case Node(k, l, r, e) =>
     var ls := set x | x in s && x < k;
     var rs := set x | x in s && x > k;
     if k !in s
     then
       assert ls + rs == s;
-      var l' := balance_tree'(l, ls);
-      var r' := balance_tree'(r, rs);
-      var t' := Node(k, l', r', old_max_size, false);
+      var l' := correct_key(l, ls);
+      var r' := correct_key(r, rs);
+      var t' := Node(k, l', r', false);
 
       assert size(l') == size(l);
       assert size(r') == size(r);
@@ -1248,9 +1248,9 @@ ghost function{:vcs_split_on_every_assert} balance_tree'(t: Tree, s: set<int>) :
     else
       assert k in s;
       assert ls + rs + {k} == s;
-      var l' := balance_tree'(l, ls);
-      var r' := balance_tree'(r, rs);
-      var t' := Node(k, l', r', old_max_size, true);
+      var l' := correct_key(l, ls);
+      var r' := correct_key(r, rs);
+      var t' := Node(k, l', r', true);
 
       assert size(l') == size(l);
       assert size(r') == size(r);
@@ -1266,7 +1266,7 @@ ghost function{:vcs_split_on_every_assert} balance_tree'(t: Tree, s: set<int>) :
   Complete balance operation
   This function balance the tree in two steps:
     1: build a new 0.5-weight-balanced tree with the same tree elements
-    2: adjust the newly built tree using `balance_tree'` to ensure the set of 
+    2: adjust the newly built tree using `correct_key` to ensure the set of 
     real elements keeps the same as before
  */
 ghost function{:vcs_split_on_every_assert} balance_tree(t: Tree) : (t': Tree)
@@ -1298,5 +1298,5 @@ ghost function{:vcs_split_on_every_assert} balance_tree(t: Tree) : (t': Tree)
   assert tree_elements(t0) == tree_elements(t) by {
     set_equal_equivalence_multiset_equal(tree_elements(t0), tree_elements(t));
   }
-  balance_tree'(t0, real_tree_elements(t))
+  correct_key(t0, real_tree_elements(t))
 }
