@@ -1136,7 +1136,6 @@ lemma unique_elements_equivalence(s: seq<int>)
  */
 lemma sequence_properties(s: seq<int>, r: seq<int>)
   requires unique_elements(s)
-  requires |s| == |r|
   requires multiset(s) == multiset(r)
   ensures unique_elements(r)
 {
