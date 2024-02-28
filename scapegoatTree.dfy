@@ -322,7 +322,7 @@ lemma alpha_weight_balanced_properties(t: Tree, alpha: real)
 /**
   Some properties between balanced trees
 */
-lemma{:vcs_split_on_every_assert} balanced_propetries(t: Tree, alpha: real, alpha': real)
+lemma{:vcs_split_on_every_assert} balanced_properties(t: Tree, alpha: real, alpha': real)
   requires 0.5 <= alpha < alpha' < 1.0
   requires BST(t)
   ensures alpha_height_balanced(t, alpha) ==> loose_alpha_height_balanced(t, alpha)
@@ -392,7 +392,7 @@ lemma{:vcs_split_on_every_assert} balanced_propetries(t: Tree, alpha: real, alph
           {}
           else
           {
-            balanced_propetries(t.left, alpha, alpha + (1.0-alpha)*0.1);
+            balanced_properties(t.left, alpha, alpha + (1.0-alpha)*0.1);
           }
         }
         assert alpha_height_balanced(t.right, alpha) by {
@@ -400,7 +400,7 @@ lemma{:vcs_split_on_every_assert} balanced_propetries(t: Tree, alpha: real, alph
           {}
           else
           {
-            balanced_propetries(t.right, alpha, alpha + (1.0-alpha)*0.1);
+            balanced_properties(t.right, alpha, alpha + (1.0-alpha)*0.1);
           }
         }
 
@@ -1241,7 +1241,7 @@ ghost function{:vcs_split_on_every_assert} correct_key(t: Tree, s: set<int>) : (
       assert size(t) == size(t');
       assert alpha_weight_balanced(t', 0.5);
       assert loose_alpha_height_balanced(t', ALPHA) by {
-        balanced_propetries(t', 0.5, ALPHA);
+        balanced_properties(t', 0.5, ALPHA);
       }
       t'
     else
@@ -1256,7 +1256,7 @@ ghost function{:vcs_split_on_every_assert} correct_key(t: Tree, s: set<int>) : (
       assert size(t) == size(t');
       assert alpha_weight_balanced(t', 0.5);
       assert loose_alpha_height_balanced(t', ALPHA) by {
-        balanced_propetries(t', 0.5, ALPHA);
+        balanced_properties(t', 0.5, ALPHA);
       }
       t'
 }
@@ -1284,13 +1284,13 @@ ghost function{:vcs_split_on_every_assert} balance_tree(t: Tree) : (t': Tree)
   var t0 := build_tree(sorted_element_seq);
   assert alpha_weight_balanced(t0, 0.5);
   assert alpha_height_balanced(t0, 0.5) by {
-    balanced_propetries(t0, 0.5, ALPHA);
+    balanced_properties(t0, 0.5, ALPHA);
   }
   assert loose_alpha_height_balanced(t0, 0.5) by {
-    balanced_propetries(t0, 0.5, ALPHA);
+    balanced_properties(t0, 0.5, ALPHA);
   }
   assert loose_alpha_height_balanced(t0, ALPHA) by {
-    balanced_propetries(t0, 0.5, ALPHA);
+    balanced_properties(t0, 0.5, ALPHA);
   }
   assert multiset(tree_elements(t0)) == multiset(sorted_element_seq)
       == multiset(element_seq) == multiset(element_set);
