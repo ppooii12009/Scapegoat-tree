@@ -870,6 +870,7 @@ function insort(a: int, s: seq<int>): (r: seq<int>)
   ensures forall x :: x in s ==> x in r
   ensures multiset(r) == multiset{a} + multiset(s)
   ensures sorted(r)
+  ensures |r| == |s| + 1
 {
   if s == [] then [a]
   else if a <= s[0] then
