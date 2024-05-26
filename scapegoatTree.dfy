@@ -4,6 +4,8 @@
   Proposed by Igal Galperin and Ronald L. Rivest, 1993
   Specified and verified by Wang, September 2023
 
+  Modified by Wang, May 26, 2023, run successfully in Dafny 4.6.0
+
 */
 
 /** 
@@ -277,7 +279,7 @@ lemma exist_max_depth_node(t: Tree)
 ghost function tree_height(t: Tree) : (h: nat)
   ensures t != Empty ==> (forall n :: n in tree_nodes(t) ==> h >= node_depth(t, n))
   ensures t == Empty ==> h == 0
-  ensures h == 0 <==> t == Empty || t.left == t.right == Empty
+  ensures h == 0 ==> t == Empty || t.left == t.right == Empty
 {
   match t
   case Empty => 0
@@ -864,7 +866,7 @@ predicate unique_elements(s: seq<int>)
 /**
   Auxiliary function for insertion sort
  */
-function insort(a: int, s: seq<int>): (r: seq<int>)
+function{:vcs_split_on_every_assert} insort(a: int, s: seq<int>): (r: seq<int>)
   requires sorted(s)
   ensures a in r
   ensures forall x :: x in s ==> x in r
@@ -875,11 +877,18 @@ function insort(a: int, s: seq<int>): (r: seq<int>)
   if s == [] then [a]
   else if a <= s[0] then
     assert s == [s[0]] + s[1..];
+    assert sorted([a] + s);
     [a] + s
   else
     assert s == [s[0]] + s[1..];
     assert forall x :: x in insort(a, s[1..]) ==> x in multiset(insort(a, s[1..])) ==> x in multiset(s[1..]) || x in multiset{a};
     assert forall x :: x in insort(a, s[1..]) ==> x in s[1..] || x in {a};
+    assert sorted(insort(a, s[1..]));
+    assert s[0] <= a;
+    assert forall x :: x in s[1..] ==> s[0] <= x;
+    assert multiset(insort(a, s[1..])) == multiset{a} + multiset(s[1..]);
+    assert ([s[0]] + insort(a, s[1..]))[0] == s[0];
+    assert sorted([s[0]] + insort(a, s[1..]));
     [s[0]] + insort(a, s[1..])
 }
 
